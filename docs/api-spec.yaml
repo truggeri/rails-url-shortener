@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Rails Url Shortener
+  description: A small application for making short urls
+  contact:
+    email: rails-url-shortener@truggeri.com
+  license:
+    name: MIT
+    url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
+  version: 0.1.0
+externalDocs:
+  description: See our Github
+  url: https://github.com/truggeri/rails-url-shortener/
+tags:
+  - name: use
+    description: Using a short URL
+  - name: admin
+    description: Routes for creating and deleting shorts
+paths:
+    /{short_url}:
+      get:
+        tags:
+        - use
+        summary: Short URL
+        description: A request with a short URL.
+        operationId: short
+        parameters:
+          - name: short_url
+            in: path
+            description: Status values that need to be considered for filter
+            required: true
+            schema:
+              type: string
+        responses:
+          302:
+            description: Redirect to the full URL
+            headers:
+              Location:
+                schema:
+                  type: string
+                description: The full URL
