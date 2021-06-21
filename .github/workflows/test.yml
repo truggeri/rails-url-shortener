@@ -1,0 +1,68 @@
+# @see https://dev.to/smitjel/kicking-the-tires-on-github-actions-45g9
+# @see https://boringrails.com/articles/building-a-rails-ci-pipeline-with-github-actions/
+
+name: Test
+
+on: 
+  push:
+    branches: 
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - name: Setup gems
+      run: |
+        gem install bundler
+        bundle config set --local deployment 'true'
+        bundle config set --local with 'test'
+        bundle install --jobs 4 --retry 3
+    - name: Linter
+      run: |
+        bundle exec rubocop -D
+  test:
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        env:
+          POSTGRES_PASSWORD: fakepassword
+        image: postgres:13
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 15s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - name: Setup gems
+      run: |
+        sudo apt-get -yqq install libpq-dev
+        gem install bundler
+        bundle config set --local deployment 'true'
+        bundle config set --local with 'test'
+        bundle install --jobs 4 --retry 3
+    - name: Prepare postgresql database
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortner_test?pool=5
+      run: |
+        rm config/database.yml
+        bin/rails db:setup
+    - name: Test
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortner_test?pool=5
+      run: |
+        bin/rails test

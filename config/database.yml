@@ -7,15 +7,11 @@ default: &default
 development:
   <<: *default
   database: rails_url_shortner_development
-  url:  <%= ENV['DEV_DATABASE_URL'] %>
 
 test:
   <<: *default
   database: rails_url_shortner_test
-  url:  <%= ENV['TEST_DATABASE_URL'] %>
 
 production:
   <<: *default
   database: rails_url_shortner_production
-  username: rails_url_shortner
-  password: <%= ENV['RAILS_URL_SHORTNER_DATABASE_PASSWORD'] %>

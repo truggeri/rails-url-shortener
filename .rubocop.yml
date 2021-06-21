@@ -1,0 +1,48 @@
+AllCops:
+  Exclude:
+    - 'bin/**'
+    - 'config/**/*'
+    - 'db/schema.rb'
+    - 'db/**/*'
+    - 'lib/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+  DisplayCopNames: true
+  NewCops: enable
+Layout/HashAlignment:
+  Enabled: false
+Layout/EmptyLines:
+  Enabled: true
+  Exclude:
+    - 'Gemfile'
+Layout/EmptyLineAfterGuardClause:
+  Enabled: true
+Layout/ExtraSpacing:
+  Enabled: true
+  Exclude:
+    - 'db/migrate/*'
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: true
+  Exclude:
+    - 'config/**/*'
+Layout/LineLength:
+  Enabled: true
+  Max:     120
+  Exclude:
+    - 'config/**/*'
+Metrics/AbcSize:
+  Enabled: true
+  Max: 25
+Metrics/ClassLength:
+  Enabled: true
+  Max: 120
+Metrics/MethodLength:
+  Enabled: true
+  Max: 25
+Style/Documentation:
+  Enabled: false
+Style/FrozenStringLiteralComment: 
+  Enabled: false
+# Style/StringLiterals:
+#   Enabled: true
+#   EnforcedStyle: "double_quotes"
