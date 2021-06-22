@@ -14,12 +14,15 @@
 #  index_shorts_on_short_url  (short_url)
 #
 class Short < ApplicationRecord
-  DEFAULT_RANDOM_LENGTH = 8
-  VALID_SHORT_URL_CHARS = /\A[a-zA-Z0-9\-_+]+\z/
+  CODE_GENERATION_ATTEMPS = 10
+  DEFAULT_RANDOM_LENGTH   = 6
+  INVALID_FULL_CHARS      = /[<>]+/
+  VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_+]+\z/
 
   before_validation :generate_short
 
-  validates :full_url,  presence: true
+  validates :full_url,  presence: true,
+                        format: { without: INVALID_FULL_CHARS, message: :blocked_chars }
   validates :short_url, presence: true, uniqueness: true,
                         format: { with: VALID_SHORT_URL_CHARS, message: :invalid_chars }
 
@@ -30,10 +33,22 @@ class Short < ApplicationRecord
   private
 
   def generate_short
-    self.short_url = generate_code unless short_url.present?
+    return nil if short_url.present?
+
+    code     = generate_code
+    attempts = CODE_GENERATION_ATTEMPS
+    while attempts.positive? && !code_valid?(code)
+      code = generate_code
+      attempts -= 1
+    end
+    self.short_url = attempts.zero? ? nil : code
   end
 
   def generate_code
     SecureRandom.base64(DEFAULT_RANDOM_LENGTH).gsub('/', '_').gsub('=', '-')
+  end
+
+  def code_valid?(code)
+    Short.where(short_url: code).count.zero?
   end
 end

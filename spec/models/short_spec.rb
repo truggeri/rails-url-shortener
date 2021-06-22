@@ -28,7 +28,15 @@ describe Short, type: :model do
         end
       end
 
-      context 'when full_url provided' do
+      context 'when invalid full_url provided' do
+        let(:object) { Short.new(full_url: '<something>', short_url: 'sho') }
+
+        it 'is invalid' do
+          expect(subject).to eq(false)
+        end
+      end
+
+      context 'when valid full_url provided' do
         let(:object) { Short.new(full_url: 'something', short_url: 'sho') }
 
         it 'is valid' do
@@ -75,6 +83,55 @@ describe Short, type: :model do
             Short.create(full_url: 'first_one', short_url: given_url)
             expect(subject).to eq(false)
           end
+        end
+      end
+    end
+  end
+
+  describe 'generate_short' do
+    subject { object.short_url }
+
+    context 'when short_url already exists' do
+      let(:object) { Short.create(full_url: 'full', short_url: 'shorty') }
+
+      it 'doesn\'t change' do
+        expect(subject).to eq('shorty')
+      end
+    end
+
+    context 'when short_url isn\'t given' do
+      let(:object) { Short.create(full_url: 'full', short_url: nil) }
+
+      it 'has a randomly generated code' do
+        expect(subject).not_to eq(nil)
+      end
+
+      context 'when auto generated code is already taken' do
+        before do
+          allow(SecureRandom).to receive(:base64).and_return('taken').once
+          allow(SecureRandom).to receive(:base64).and_call_original
+        end
+
+        it 'has a randomly generated code' do
+          Short.create(full_url: 'full', short_url: 'taken')
+          expect(subject).not_to eq(nil)
+          expect(subject).not_to eq('taken')
+        end
+      end
+
+      context 'when all random codes are taken (at least ten)' do
+        let(:taken_values) { %w[a b c d e f g h i j k] }
+
+        before do
+          allow(SecureRandom).to receive(:base64).and_return(*taken_values)
+        end
+
+        it 'gives up and can\'t create code' do
+          taken_values.each do |v|
+            Short.create(full_url: 'full', short_url: v)
+          end
+          expect(subject).to       eq(nil)
+          expect(object.valid?).to eq(false)
         end
       end
     end
