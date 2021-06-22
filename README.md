@@ -43,3 +43,8 @@ export DATABASE_URL=postgres://<username>:<password>@<host>:<port>/rails_url_sho
 ```
 
 This database can be setup in any fashion that you choose. Options include [local install](https://www.postgresql.org/download/), [Docker](https://hub.docker.com/_/postgres?tab=description), or as [a web service](https://www.heroku.com/postgres).
+
+## Future Improvements
+
+Of course, there's always more to do. [Read our documentation](./docs/future_improvements.md) on
+upcoming areas of improvement.

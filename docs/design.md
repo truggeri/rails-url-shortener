@@ -161,3 +161,7 @@ This project includes a [root README file](../README.md) which references this d
 [![Heroku Badge](https://img.shields.io/badge/-GitHub-322626?style=flat&labelColor=181717&logo=github&logoColor=white)](https://github.com/truggeri/rails-url-shortener)
 
 This project is hosted using [GitHub](https://github.com/) at [https://github.com/truggeri/rails-url-shortener](https://github.com/truggeri/rails-url-shortener).
+
+## Future Improvements
+
+To see areas for improvement, [read our documentation](./future_improvements.md).
