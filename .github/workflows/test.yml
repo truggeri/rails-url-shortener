@@ -56,13 +56,13 @@ jobs:
     - name: Prepare postgresql database
       env:
         RAILS_ENV: test
-        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortner_test?pool=5
+        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortener_test?pool=5
       run: |
         rm config/database.yml
         bin/rails db:setup
     - name: Test
       env:
         RAILS_ENV: test
-        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortner_test?pool=5
+        DATABASE_URL: postgresql://postgres:fakepassword@127.0.0.1/rails_url_shortener_test?pool=5
       run: |
-        bin/rails test
+        bundle exec rspec spec/

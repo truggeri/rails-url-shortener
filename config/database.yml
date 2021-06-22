@@ -6,13 +6,13 @@ default: &default
 
 development:
   <<: *default
-  database: rails_url_shortner_development
+  database: rails_url_shortener_development
 
 test:
   <<: *default
-  database: rails_url_shortner_test
+  database: rails_url_shortener_test
   url:  <%= ENV['TEST_DATABASE_URL'] %>
 
 production:
   <<: *default
-  database: rails_url_shortner_production
+  database: rails_url_shortener_production

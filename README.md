@@ -36,7 +36,7 @@ To get started, you'll need the following dependencies setup.
 This app uses [PostgreSQL 13](https://www.postgresql.org/docs/13/) for it's datastore. In order to configure one, provide a database URL via an environment variable.
 
 ```bash
-export DATABASE_URL=postgres://<username>:<password>@<host>:<port>/rails_url_shortner
+export DATABASE_URL=postgres://<username>:<password>@<host>:<port>/rails_url_shortener
 ```
 
 This database can be setup in any fashion that you choose. Options include [local install](https://www.postgresql.org/download/), [Docker](https://hub.docker.com/_/postgres?tab=description), or as [a web service](https://www.heroku.com/postgres).
