@@ -15,10 +15,39 @@ tags:
   - name: use
     description: Using a short URL
   - name: admin
-    description: Routes for creating and deleting shorts
+    description: Routes for managing URL shorts
   - name: ops
     description: Routes used for the operation of the app
 paths:
+  /:
+    post:
+      tags:
+        - admin
+      summary: Create a new short URL
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              required:
+                - full_url
+              type: object
+              properties:
+                full_url:
+                  description: The target URL
+                  example: https://petfinder.com
+                  type: string
+                short_url:
+                  description: The desired short URL. All characters (a-z) are lower cased
+                  example: doggo
+                  type: string
+      responses:
+        200:    
+          description: The short URL was successfully created
+        400:
+          description: The provided params are not valid
+        401:
+          description: The provided authentication is not authorized to remove this short URL
   /{short_url}:
     get:
       tags:
@@ -28,7 +57,7 @@ paths:
       parameters:
         - name: short_url
           in: path
-          description: Status values that need to be considered for filter
+          description: The short URL code
           required: true
           schema:
             type: string
@@ -40,6 +69,25 @@ paths:
               schema:
                 type: string
               description: The full URL
+        404:
+          description: Short URL could not be found
+    delete:
+      tags:
+        - admin
+      summary: Delete a short URL
+      description: Remove a short URL from use
+      parameters:
+        - name: short_url
+          in: path
+          description: The short URL code
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The short URL was successfully removed
+        401:
+          description: The provided authentication is not authorized to remove this short URL
         404:
           description: Short URL could not be found
   /health:

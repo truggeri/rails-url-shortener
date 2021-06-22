@@ -28,6 +28,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'simplecov'
+  gem 'timecop'
 end
 
 group :development do

@@ -20,8 +20,12 @@ class Short < ApplicationRecord
   before_validation :generate_short
 
   validates :full_url,  presence: true
-  validates :short_url, presence: true, uniqueness: true, format: { with: VALID_SHORT_URL_CHARS,
-    message: :invalid_chars }
+  validates :short_url, presence: true, uniqueness: true,
+                        format: { with: VALID_SHORT_URL_CHARS, message: :invalid_chars }
+
+  def marshall
+    { created_at: created_at.iso8601, full_url: full_url, short_url: short_url }
+  end
 
   private
 

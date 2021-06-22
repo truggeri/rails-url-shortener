@@ -71,4 +71,17 @@ describe Short, type: :model do
       end
     end
   end
+
+  describe '#marshall' do
+    subject { object.marshall }
+
+    let(:object) { Short.create(full_url: 'full-full', short_url: 'shorty') }
+    let(:time)   { 4.minutes.ago }
+
+    it 'gives hash respresentation of object' do
+      Timecop.freeze(time) do
+        expect(subject).to include(created_at: time.iso8601, full_url: 'full-full', short_url: 'shorty')
+      end
+    end
+  end
 end
