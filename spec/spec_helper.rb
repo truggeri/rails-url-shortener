@@ -14,4 +14,6 @@ end
 
 require 'simplecov'
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([SimpleCov::Formatter::HTMLFormatter])
-SimpleCov.start
+SimpleCov.start do
+  add_filter('spec/rails_helper.rb')
+end
