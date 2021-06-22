@@ -54,6 +54,14 @@ describe Short, type: :model do
           expect(subject).to eq(true)
         end
 
+        context 'when short_url has valid characters' do
+          let(:given_url) { 'g00d_URL-+' }
+
+          it 'is valid' do
+            expect(subject).to eq(true)
+          end
+        end
+
         context 'when short_url has invalid characters' do
           let(:given_url) { 'b@d_Url' }
 

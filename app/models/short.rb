@@ -15,7 +15,7 @@
 #
 class Short < ApplicationRecord
   DEFAULT_RANDOM_LENGTH = 8
-  VALID_SHORT_URL_CHARS = /\A[a-zA-Z0-9\-_]+\z/
+  VALID_SHORT_URL_CHARS = /\A[a-zA-Z0-9\-_+]+\z/
 
   before_validation :generate_short
 
@@ -34,6 +34,6 @@ class Short < ApplicationRecord
   end
 
   def generate_code
-    SecureRandom.base64(DEFAULT_RANDOM_LENGTH).gsub('/', '-').gsub('=', '_')
+    SecureRandom.base64(DEFAULT_RANDOM_LENGTH).gsub('/', '_').gsub('=', '-')
   end
 end
