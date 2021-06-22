@@ -11,9 +11,13 @@ class ShortsController < ApplicationController
   end
 
   def create
-    details             = { full_url: params[:full_url] }
-    details[:short_url] = params[:short_url].downcase if params[:short_url].present?
-    @short              = Short.create(details)
+    details = { full_url: params[:full_url] }
+    if params[:short_url].present?
+      details[:short_url]      = params[:short_url].downcase
+      details[:user_generated] = true
+    end
+
+    @short = Short.create(details)
     return render(json: @short.marshall, status: 200) if @short.valid?
 
     render_status(400)

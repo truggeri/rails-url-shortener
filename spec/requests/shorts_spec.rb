@@ -53,8 +53,9 @@ describe 'shorts', type: :request do
         expect(response).to   have_http_status(:ok)
 
         last_short = Short.last
-        expect(last_short.full_url).to     eq('something')
-        expect(last_short.full_url).not_to eq(nil)
+        expect(last_short.full_url).to       eq('something')
+        expect(last_short.short_url).not_to  eq(nil)
+        expect(last_short.user_generated).to eq(false)
       end
     end
 
@@ -66,8 +67,9 @@ describe 'shorts', type: :request do
         expect(response).to   have_http_status(:ok)
 
         last_short = Short.last
-        expect(last_short.full_url).to  eq('something')
-        expect(last_short.short_url).to eq('som')
+        expect(last_short.full_url).to       eq('something')
+        expect(last_short.short_url).to      eq('som')
+        expect(last_short.user_generated).to eq(true)
       end
 
       context 'when create fails' do
