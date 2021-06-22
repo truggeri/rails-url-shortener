@@ -37,7 +37,28 @@ ToDo
 
 ### Get Redirected
 
-ToDo
+This is the heart of the project. There are a few key considerations with this functionality.
+
+1. This action should always be fast.
+2. We should prevent security concerns when possible.
+
+The first point can be achieved with a few techniques. Translations from short url to full url are done by a SQL
+query that should be covered by an index. This means the `short_url` field needs to be indexed. If we need
+further optimization, an in-memory cache could be used to enhance speed of "hot" slugs, but for now we will only
+be relying on the PostgreSQL cache.
+
+The second point has two pieces. The first is not allowing injection or poorly formed URLs by reducing the
+character set that is allowed. We only allow alphanumeric characters (`A-Z`, `a-z` and `0-9`) as well as
+`-` and `_` to get to an even 64 characters. This avoids issues with script injecting and homographic attacks.
+
+We also need to consider takeover attacks where an attacker takes a `short_url` that is similar to another
+short one in order to trick unsuspecting users (ex: `example` and `Example`). We can achieve this by only
+allowing custom slugs to be lower case. The reason not to down case incoming slugs is that it would both increase
+our computation time, doing the actual down case, and it would reduce our available characters by 26.
+
+Another approach would be to do the lookup by a `short_url` as given, and if it misses in the database, try
+again after down casing. This would work and maintain our full character set, but it would violate our first
+consideration - keep this route fast. In order to maintain speed, we should also avoid running multiple SQL queries to determine the `full_url`. This is done by not allowing users to enter custom slugs with upper case letters so a down case is not necessary as a second query.
 
 ## Project Design
 

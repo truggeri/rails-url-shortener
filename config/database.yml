@@ -11,6 +11,7 @@ development:
 test:
   <<: *default
   database: rails_url_shortner_test
+  url:  <%= ENV['TEST_DATABASE_URL'] %>
 
 production:
   <<: *default

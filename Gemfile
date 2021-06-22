@@ -14,12 +14,14 @@ gem 'bundler', '>= 1.15.0'
 gem 'railties', '~> 6.1.3', '>= 6.1.3.2'
 # -- End rails
 
+gem 'annotate', require: false
 gem 'bootsnap', '>= 1.4.4', require: false
 gem 'jbuilder', '~> 2.7'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 5.0'
 
 group :development, :test do
+  gem 'pry'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'rubocop'

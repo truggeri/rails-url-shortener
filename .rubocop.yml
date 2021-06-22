@@ -33,6 +33,10 @@ Layout/LineLength:
 Metrics/AbcSize:
   Enabled: true
   Max: 25
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
 Metrics/ClassLength:
   Enabled: true
   Max: 120
@@ -43,6 +47,3 @@ Style/Documentation:
   Enabled: false
 Style/FrozenStringLiteralComment: 
   Enabled: false
-# Style/StringLiterals:
-#   Enabled: true
-#   EnforcedStyle: "double_quotes"

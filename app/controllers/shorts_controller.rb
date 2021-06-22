@@ -5,14 +5,13 @@ class ShortsController < ApplicationController
   before_action :load_short, only: %i[lookup]
 
   def lookup
-    redirect_to(health_path)
+    redirect_to(@short.full_url)
   end
 
   private
 
   def load_short
-    # TODO: load real short
-    @short = nil
+    @short = Short.find_by(short_url: params[:id])
     return nil if @short.present?
 
     render_status(404)

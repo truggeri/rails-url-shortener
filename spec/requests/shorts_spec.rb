@@ -16,9 +16,10 @@ describe 'shorts', type: :request do
     context 'when short found' do
       let(:short_id) { 'real' }
 
-      it 'redirects to long url', :skip do
+      it 'redirects to long url' do
+        Short.create(short_url: 'real', full_url: 'http://original_url')
         subject
-        expect(response).to redirect_to(health_path)
+        expect(response).to redirect_to('http://original_url')
       end
     end
   end
