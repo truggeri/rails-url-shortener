@@ -25,40 +25,108 @@ The following section details design decisions based on each product requirement
 
 ### Create Short URLs
 
-ToDo
+Creating short URLs can be done via POST to the root. The only required parameter is `full_url` as empty
+`short_urls` get an auto generated code. Much more detail on this will be detailed later.
+
+```bash
+$ curl -D - -X POST --url "/" --data "full_url=https://anytown.usa"
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"created_at":"2021-06-22T14:46:35Z","full_url":"https://anytown.usa","short_url":"Sa37mxEZilg-"}
+```
 
 ### Custom Slugs
 
-ToDo
+Custom slugs can also be created by providing a `short_url` parameter to the create route.
+
+```bash
+$ curl -D - -X POST --url "/" --data "full_url=https://anytown.usa" --data "short_url=any"
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"created_at":"2021-06-22T14:48:12Z","full_url":"https://anytown.usa","short_url":"any"}
+```
+
+There are a few restrictions to what `short_url`s are valid. Only alpha numeric and `-`, `_` and `+` characters
+are allowed. Any uppercase letters are converted to lower case. The reason for this, which breaks down to
+security, is outlined in further detail below.
 
 ### Expire URLs
 
-ToDo
+Expiring URLs is done through a DELETE HTTP request to the slug.
+
+```bash
+$ curl -D - -X DELETE --url "/any"
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{}
+```
 
 ### Get Redirected
 
-This is the heart of the project. There are a few key considerations with this functionality.
+This is the heart of the project. To go from a short url to a full url, simply perform a GET to the short url.
+
+```bash
+$ curl -D - -X GET --url "/any"
+HTTP/1.1 302 Found
+Location: https://anytown.usa
+Content-Type: text/html; charset=utf-8
+```
+
+There are a few key considerations with this functionality.
 
 1. This action should always be fast.
 2. We should prevent security concerns when possible.
+3. This design should scale reasonably well.
+
+#### Speed
 
 The first point can be achieved with a few techniques. Translations from short url to full url are done by a SQL
 query that should be covered by an index. This means the `short_url` field needs to be indexed. If we need
 further optimization, an in-memory cache could be used to enhance speed of "hot" slugs, but for now we will only
-be relying on the PostgreSQL cache.
+be relying on the PostgreSQL cache. Any non-local cache (memcached, Redis) _might_ be faster, but because they
+are across the network, it is possible that such a solution offers no additional performance while adding a
+decent amount of complexity.
+
+#### Security
 
 The second point has two pieces. The first is not allowing injection or poorly formed URLs by reducing the
 character set that is allowed. We only allow alphanumeric characters (`A-Z`, `a-z` and `0-9`) as well as
-`-` and `_` to get to an even 64 characters. This avoids issues with script injecting and homographic attacks.
+`-`, `_` and `+` to get at least 64 character options. This avoids issues with
+[script injecting](https://en.wikipedia.org/wiki/Code_injection) and
+[homographic attacks](https://en.wikipedia.org/wiki/IDN_homograph_attack).
 
 We also need to consider takeover attacks where an attacker takes a `short_url` that is similar to another
 short one in order to trick unsuspecting users (ex: `example` and `Example`). We can achieve this by only
 allowing custom slugs to be lower case. The reason not to down case incoming slugs is that it would both increase
-our computation time, doing the actual down case, and it would reduce our available characters by 26.
+our computation time, doing the down case on every request, and it would reduce our available characters by 26.
 
 Another approach would be to do the lookup by a `short_url` as given, and if it misses in the database, try
 again after down casing. This would work and maintain our full character set, but it would violate our first
 consideration - keep this route fast. In order to maintain speed, we should also avoid running multiple SQL queries to determine the `full_url`. This is done by not allowing users to enter custom slugs with upper case letters so a down case is not necessary as a second query.
+
+#### Scale
+
+The final consideration is how this design will scale. The product requirements give no bound to the scale of
+the application. This means the design must strike a balance between speed of development, complexity of the
+solution and potential future scaling.
+
+Based on 65 possible characters and a default of six characters for a random short, there are
+75.4 billion possible shorts.
+
+```math
+65^5 = 75,418,890,625
+```
+
+This provides the balance between available options and our choice of data store, PostgreSQL.
+
+While the read may be fast, we should also consider the speed of the create. If we only randomly generate
+a code and then check to ensure it's not taken, we will slow down dramatically as the number of shorts grow.
+Said another way, the naive approach to code generation is `O(n)` for `n` existing shorts.
+An ideal solution would be able to generate a random that's in order `O(1)`. This is an optimization that
+we will aim to develop in the future.
 
 ## Project Design
 
@@ -68,12 +136,20 @@ This section outlines aspects of the application design that relate to the proje
 
 [![GitHub Actions Badge](https://img.shields.io/badge/-GitHub_Actions-4b93e6?style=flat&labelColor=2088FF&logo=github-actions&logoColor=white)](https://github.com/truggeri/rails-url-shortener/actions)
 
-The testing suite is run as part of continuous integration using GitHub Actions.
+The testing suite and linting are run as part of
+[continuous integration](https://en.wikipedia.org/wiki/Continuous_integration)
+[using GitHub Actions](https://github.com/truggeri/rails-url-shortener/actions).
 
-To run the test suite locally,
+The test suite can also be run locally.
 
 ```bash
 bundle exec rspec spec/
+```
+
+And linting can also be done locally.
+
+```bash
+bundle exec rubocop -D
 ```
 
 ### README File
