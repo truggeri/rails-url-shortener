@@ -29,13 +29,6 @@ describe 'shorts', type: :request do
 
     let(:params) { {} }
 
-    context 'when user not logged in', :skip do
-      it 'gives unauthorized' do
-        expect { subject }.not_to change(Short, :count)
-        expect(response).to       have_http_status(:unauthorized)
-      end
-    end
-
     context 'when params are empty' do
       let(:params) { {} }
 
@@ -84,18 +77,59 @@ describe 'shorts', type: :request do
   end
 
   describe 'destroy' do
-    subject { delete("/#{short_id}") }
+    subject { delete("/#{short_id}", headers: headers) }
 
-    context 'when user not logged in', :skip do
+    let(:short_id) { 'this-shouldnt-matter' }
+
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('JWT_SECRET').and_return('test-secret')
+    end
+
+    shared_examples_for 'an unauthorized request' do
       it 'gives unauthorized' do
         expect { subject }.not_to change(Short, :count)
         expect(response).to       have_http_status(:unauthorized)
       end
     end
 
-    context 'when user logged in' do
+    context 'when no authorizaion header' do
+      let(:headers)  { {} }
+
+      it_behaves_like 'an unauthorized request'
+    end
+
+    context 'when token given' do
+      let(:headers) { { 'Authorization' => "bearer #{given_token}" } }
+
+      context 'when token is junk' do
+        let(:given_token) { 'a.b.c' }
+
+        it_behaves_like 'an unauthorized request'
+      end
+
+      context 'when token is not from this issuer' do
+        let(:given_token) do
+          'eyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.' \
+          'eyJpYXQiOjE2MjQ0NTY1NjUsImlzcyI6InNvbWVib2R5X2Vsc2UiLCJ1dWlkIjoiYS1iLWMifQ.' \
+          'XxpZNPUShbvEaNWvqkU3VgpNbyfqruRdPM2GmXNVR80'
+        end
+
+        it_behaves_like 'an unauthorized request'
+      end
+
+      context 'when token doesn\'t have uuid' do
+        let(:given_token) do
+          'eyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQ0NTczMDUsImlzcyI6InJhaWxzLXVybC1zaG9ydGVuZXIifQ.' \
+          '-bW-W3q-58wvsus88fkgfcBJ3gzYeNlri3pqtvnaeG4'
+        end
+
+        it_behaves_like 'an unauthorized request'
+      end
+
       context 'when given id is bad' do
-        let(:short_id) { 'bad-id' }
+        let(:short_id)    { 'bad-id' }
+        let(:given_token) { Token.encode({ uuid: 'something' }) }
 
         it 'gives not found' do
           expect { subject }.not_to change(Short, :count)
@@ -104,20 +138,33 @@ describe 'shorts', type: :request do
       end
 
       context 'when given id is good' do
-        let(:short_id) { 'good-id' }
-        let!(:short)   { Short.create(short_url: short_id, full_url: 'something') }
+        let(:short_id)   { 'good-id' }
+        let!(:short)     { Short.create(short_url: short_id, full_url: 'something', uuid: given_uuid) }
+        let(:given_uuid) { '7fb83e82-943d-42bf-ae34-71290723a9cf' }
 
-        it 'removes short' do
-          expect { subject }.to change(Short, :count).by(-1)
-          expect(response).to   have_http_status(:ok)
+        context 'when token has a different shorts uuid' do
+          let(:other_short) { Short.create(short_url: 'other', full_url: 'somethingelse', uuid: other_uuid) }
+          let(:other_uuid)  { '18d03576-2a73-4c09-b4da-6bf145d0981d' }
+          let(:given_token) { Token.encode({ uuid: other_uuid, iat: short.created_at.to_i }) }
+
+          it_behaves_like 'an unauthorized request'
         end
 
-        context 'when destroy fails' do
-          before { allow_any_instance_of(Short).to receive(:destroy).and_return(false) }
+        context 'when token is good' do
+          let(:given_token) { Token.encode({ uuid: given_uuid, iat: short.created_at.to_i }) }
 
-          it 'gives bad request' do
-            subject
-            expect(response).to have_http_status(:bad_request)
+          it 'removes short' do
+            expect { subject }.to change(Short, :count).by(-1)
+            expect(response).to   have_http_status(:ok)
+          end
+
+          context 'when destroy fails' do
+            before { allow_any_instance_of(Short).to receive(:destroy).and_return(false) }
+
+            it 'gives bad request' do
+              subject
+              expect(response).to have_http_status(:bad_request)
+            end
           end
         end
       end

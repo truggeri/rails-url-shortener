@@ -6,6 +6,7 @@
 #  full_url       :string           not null
 #  short_url      :string           not null
 #  user_generated :boolean          default(FALSE), not null
+#  uuid           :uuid             not null
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #
@@ -20,6 +21,7 @@ class Short < ApplicationRecord
   VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_+]+\z/
 
   before_validation :generate_short
+  before_validation :generate_uuid
 
   validates :full_url,  presence: true,
                         format: { without: INVALID_FULL_CHARS, message: :blocked_chars }
@@ -27,7 +29,7 @@ class Short < ApplicationRecord
                         format: { with: VALID_SHORT_URL_CHARS, message: :invalid_chars }
 
   def marshall
-    { created_at: created_at.iso8601, full_url: full_url, short_url: short_url }
+    { created_at: created_at.iso8601, full_url: full_url, short_url: short_url, token: token }
   end
 
   private
@@ -50,5 +52,13 @@ class Short < ApplicationRecord
 
   def code_valid?(code)
     Short.where(short_url: code).count.zero?
+  end
+
+  def generate_uuid
+    self.uuid = SecureRandom.uuid if uuid.blank?
+  end
+
+  def token
+    Token.encode({ iat: created_at.to_i, uuid: uuid })
   end
 end

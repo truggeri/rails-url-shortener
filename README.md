@@ -1,7 +1,7 @@
 # Rails Url Shortener
 
 [![Test](https://github.com/truggeri/rails-url-shortener/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/truggeri/rails-url-shortener/actions/workflows/test.yml)
-![Coverage Badge](https://img.shields.io/badge/coverage-98%25-brightgreen.svg)
+![Coverage Badge](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)
 
 A simple Rails application that acts as an api based url shortener.
 

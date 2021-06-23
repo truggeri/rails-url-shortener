@@ -6,6 +6,7 @@
 #  full_url       :string           not null
 #  short_url      :string           not null
 #  user_generated :boolean          default(FALSE), not null
+#  uuid           :uuid             not null
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #
@@ -137,6 +138,27 @@ describe Short, type: :model do
     end
   end
 
+  describe 'generate_uuid' do
+    subject { object.uuid }
+
+    context 'when uuid present' do
+      let(:object)     { Short.create(full_url: 'full', uuid: given_uuid) }
+      let(:given_uuid) { SecureRandom.uuid }
+
+      it 'keeps the original' do
+        expect(subject).to eq(given_uuid)
+      end
+    end
+
+    context 'when uuid absent' do
+      let(:object) { Short.create(full_url: 'full') }
+
+      it 'generates one' do
+        expect(subject).not_to eq(nil)
+      end
+    end
+  end
+
   describe '#marshall' do
     subject { object.marshall }
 
@@ -145,7 +167,12 @@ describe Short, type: :model do
 
     it 'gives hash respresentation of object' do
       Timecop.freeze(time) do
-        expect(subject).to include(created_at: time.iso8601, full_url: 'full-full', short_url: 'shorty')
+        allow(Token).to receive(:encode).with({ iat: object.created_at.to_i, uuid: object.uuid })
+                                        .and_return('fake-token')
+        expect(subject).to include(created_at: time.iso8601,
+                                   full_url:   'full-full',
+                                   short_url:  'shorty',
+                                   token:      'fake-token')
       end
     end
   end

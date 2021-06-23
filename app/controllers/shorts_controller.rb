@@ -2,8 +2,9 @@
 # Controller for Short actions including lookup
 #
 class ShortsController < ApplicationController
-  before_action :authorize_user,  only: %i[create destroy]
+  before_action :authenticate!,   only: %i[destroy]
   before_action :load_short,      only: %i[destroy show]
+  before_action :authorize!,      only: %i[destroy]
   before_action :validate_params, only: %i[create]
 
   def show
@@ -30,13 +31,6 @@ class ShortsController < ApplicationController
 
   private
 
-  def authorize_user
-    # TODO: implement user based control
-    return nil if true # rubocop:disable Lint/LiteralAsCondition
-
-    render_status(401)
-  end
-
   def load_short
     @short = Short.find_by(short_url: params[:id])
     return nil if @short.present?
@@ -52,5 +46,14 @@ class ShortsController < ApplicationController
 
   def short_params
     params.permit(:full_url, :short_url)
+  end
+
+  def authorize!
+    token_for_request = @short.uuid == @authorized_for[:uuid]
+    token_times_match = (@authorized_for[:iat] - @short.created_at.to_i) < 10
+
+    return nil if token_for_request && token_times_match
+
+    render_status(401)
   end
 end
