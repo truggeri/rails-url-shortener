@@ -130,8 +130,8 @@ This provides the balance between available options and our choice of data store
 While the read may be fast, we should also consider the speed of the create. If we only randomly generate
 a code and then check to ensure it's not taken, we will slow down dramatically as the number of shorts grow.
 Said another way, the naive approach to code generation is `O(n)` for `n` existing shorts.
-An ideal solution would be able to generate a random that's in order `O(1)`. This is an optimization that
-we will aim to develop in the future.
+An ideal solution would be able to generate a random that's in order `O(1)`.
+This is an optimization that is detailed below.
 
 ## Project Design
 
@@ -185,3 +185,16 @@ not this application itself.
 The expiration of a short is restricted by a [Json Web Token (jwt)](https://jwt.io/introduction)
 which is provided at creation. This ensures that only the creator has the authority to remove their short.
 The token is signed using HS256, so it cannot be tampered with or faked.
+
+### Auto Generated Slugs
+
+A late addition was to change the mechanism for generating a slug. The original implementation created a random
+string using Base64. This would work fine when the total space of available slugs is sparse, but as it filled up
+collisions would become far more likely and thus the time to create would rise.
+
+The new mechanism will creating a code in `O(1)` time, even as the available space of slugs decreases. It uses
+a base 64 conversion of the next available id. This creates a code that is likely to be available unless it was
+already taken by a custom slug. The process is also no slower than a random Base64 string generation would be.
+
+To see the change, please see
+[commit fd2b7d2](https://github.com/truggeri/rails-url-shortener/commit/fd2b7d22bd1a9287171194c39d6aab5bdde7eefb).

@@ -46,8 +46,10 @@ matching recoverable shorts and recover them.
 
 There are a few ideas that would enhance the speed or scale of the app.
 
-### Short URL Generation
+### Distribution
 
-The current mechanism for generating short URLs generates a random code and checks that the code isn't already
-taken. If we instead had a deterministic way of creating a code in `O(1)` time, we could ensure that a new code
-will be fast(er) to be generated and that each new random code will be successful regardless of the scale.
+The current mechanism used for generating new slugs may slow down if the system becomes widely distributed across
+computation nodes. This is because it relies on getting the last integer id of the slugs table. In a distributed
+system, the number of collisions would increase as the number of nodes increased. A more centralized source of
+truth or better distributed generation algorithm could be used,
+but this would only make sense at very large scale.
