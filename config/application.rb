@@ -11,8 +11,9 @@ Bundler.require(*Rails.groups)
 
 module RailsUrlShortener
   class Application < Rails::Application
-    config.load_defaults 6.1
-
+    config.load_defaults(6.1)
     config.api_only = true
+    config.middleware.use(ActionDispatch::Session::CacheStore)
+    config.action_dispatch.session_store(:cache_store, key: '_url_shortener_session')
   end
 end

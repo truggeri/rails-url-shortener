@@ -2,9 +2,11 @@
 # Controller for Short actions including lookup
 #
 class ShortsController < ApplicationController
-  before_action :authorize_user,  only: %i[create destroy]
-  before_action :load_short,      only: %i[destroy show]
-  before_action :validate_params, only: %i[create]
+  include Secured
+
+  before_action :authenticate_request!, only: %i[create destroy]
+  before_action :load_short,            only: %i[destroy show]
+  before_action :validate_params,       only: %i[create]
 
   def show
     redirect_to(@short.full_url)
@@ -29,13 +31,6 @@ class ShortsController < ApplicationController
   end
 
   private
-
-  def authorize_user
-    # TODO: implement user based control
-    return nil if true # rubocop:disable Lint/LiteralAsCondition
-
-    render_status(401)
-  end
 
   def load_short
     @short = Short.find_by(short_url: params[:id])
