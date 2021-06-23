@@ -122,7 +122,7 @@ Based on 65 possible characters and a default of six characters for a random sho
 75.4 billion possible shorts.
 
 ```math
-65^5 = 75,418,890,625
+65^6 = 75,418,890,625
 ```
 
 This provides the balance between available options and our choice of data store, PostgreSQL.
