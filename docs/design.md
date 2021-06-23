@@ -48,7 +48,7 @@ Content-Type: application/json; charset=utf-8
 {"created_at":"2021-06-22T14:48:12Z","full_url":"https://anytown.usa","short_url":"any","token":"nsdo.sg89sdn.sdfnk2"}
 ```
 
-There are a few restrictions to what `short_url`s are valid. Only alpha numeric and `-`, `_` and `+` characters
+There are a few restrictions to what `short_url`s are valid. Only alpha numeric and `-_` characters
 are allowed. Any uppercase letters are converted to lower case. The reason for this, which breaks down to
 security, is outlined in further detail below.
 
@@ -99,7 +99,7 @@ decent amount of complexity.
 
 The second point has two pieces. The first is not allowing injection or poorly formed URLs by reducing the
 character set that is allowed. We only allow alphanumeric characters (`A-Z`, `a-z` and `0-9`) as well as
-`-`, `_` and `+` to get at least 64 character options. This avoids issues with
+`-` and `_` to get at least 64 character options. This avoids issues with
 [script injecting](https://en.wikipedia.org/wiki/Code_injection) and
 [homographic attacks](https://en.wikipedia.org/wiki/IDN_homograph_attack).
 
@@ -118,11 +118,11 @@ The final consideration is how this design will scale. The product requirements 
 the application. This means the design must strike a balance between speed of development, complexity of the
 solution and potential future scaling.
 
-Based on 65 possible characters and a default of six characters for a random short, there are
-75.4 billion possible shorts.
+Based on 64 possible characters and a default of six characters for a random short, there are
+69 billion possible shorts. If we ever need more, we can add another digit.
 
 ```math
-65^6 = 75,418,890,625
+64^6 = 68,719,476,736
 ```
 
 This provides the balance between available options and our choice of data store, PostgreSQL.

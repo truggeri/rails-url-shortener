@@ -40,7 +40,7 @@ paths:
                   example: https://petfinder.com
                   type: string
                 short_url:
-                  description: The desired short URL. Only alpha numeric and - _ + characters allowed. Must be between 3 and 100 characters. All characters (a-z) are lower cased
+                  description: The desired short URL. Only alpha numeric and - _ characters allowed. Must be between 3 and 100 characters. All characters (a-z) are lower cased
                   example: doggo
                   type: string
       responses:
@@ -85,7 +85,7 @@ paths:
                   errors:
                     type: array
                     description: Array of error messages
-                    example: ["Short url only alpha numeric and - _ + allowed"]
+                    example: ["Short url only alpha numeric and - _ allowed"]
                   message:
                     type: string
                     description: Bad request

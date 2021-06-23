@@ -3,7 +3,7 @@ en:
     errors:
       messages:
         blocked_chars: "contains invalid characters"
-        invalid_characters: "can only contain alpha numeric and - _ + allowed"
+        invalid_characters: "can only contain alpha numeric and - _ allowed"
         reserved: "contains a reserved keyword"
   errors:
     400: "Bad request"

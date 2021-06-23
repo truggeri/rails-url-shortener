@@ -54,13 +54,10 @@ describe Short, type: :model do
       end
 
       context 'when short_url provided' do
-        let(:object)    { Short.new(full_url: 'something', short_url: given_url) }
-        let(:given_url) { 'new-url' }
-
-        it { expect(subject).to eq(true) }
+        let(:object) { Short.new(full_url: 'something', short_url: given_url) }
 
         context 'when short_url has valid characters' do
-          let(:given_url) { 'g00d_URL-+' }
+          let(:given_url) { 'g00d_URL-' }
 
           it { expect(subject).to eq(true) }
         end
@@ -84,6 +81,8 @@ describe Short, type: :model do
         end
 
         context 'when short_url already taken' do
+          let(:given_url) { 'new-url' }
+
           it 'is invalid' do
             Short.create(full_url: 'first_one', short_url: given_url)
             expect(subject).to eq(false)
@@ -113,8 +112,8 @@ describe Short, type: :model do
 
       context 'when auto generated code is already taken' do
         before do
-          allow(SecureRandom).to receive(:base64).and_return('taken').once
-          allow(SecureRandom).to receive(:base64).and_call_original
+          allow(Slug).to receive(:new).and_return('taken').once
+          allow(Slug).to receive(:new).and_call_original
         end
 
         it 'has a randomly generated code' do
@@ -128,7 +127,7 @@ describe Short, type: :model do
         let(:taken_values) { %w[azz bzz czz dzz ezz fzz gzz hzz izz jzz kzz] }
 
         before do
-          allow(SecureRandom).to receive(:base64).and_return(*taken_values)
+          allow(Slug).to receive(:new).and_return(*taken_values)
         end
 
         it 'gives up and can\'t create code' do

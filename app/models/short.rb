@@ -19,7 +19,7 @@ class Short < ApplicationRecord
   DEFAULT_RANDOM_LENGTH   = 6
   INVALID_FULL_CHARS      = /[<>]+/
   RESERVED_SHORTS         = %w[admin health status system].freeze
-  VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_+]+\z/
+  VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_]+\z/
 
   before_save       :generate_uuid
   before_validation :generate_short
@@ -39,17 +39,23 @@ class Short < ApplicationRecord
   def generate_short
     return nil if short_url.present?
 
-    code     = generate_code
+    id       = (last_short_id.presence || 0) + 1
+    code     = generate_code(id)
     attempts = CODE_GENERATION_ATTEMPS
     while attempts.positive? && !code_valid?(code)
-      code = generate_code
+      id += 997
+      code = generate_code(id)
       attempts -= 1
     end
     self.short_url = attempts.zero? ? nil : code
   end
 
-  def generate_code
-    SecureRandom.base64(DEFAULT_RANDOM_LENGTH).gsub('/', '_').gsub('=', '-')
+  def last_short_id
+    Short.limit(1).order(id: :desc).pluck(:id).first
+  end
+
+  def generate_code(number)
+    Slug.new(number).to_s
   end
 
   def code_valid?(code)
