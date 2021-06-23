@@ -3,11 +3,13 @@ info:
   title: Rails Url Shortener
   description: A small application for making short urls
   contact:
-    email: rails-url-shortener@truggeri.com
+    email: short@truggeri.com
   license:
     name: MIT
     url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
   version: 0.1.0
+servers:
+- url: https://short.truggeri.com/
 externalDocs:
   description: See our Github
   url: https://github.com/truggeri/rails-url-shortener/
