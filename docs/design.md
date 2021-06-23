@@ -45,19 +45,24 @@ $ curl -D - -X POST --url "/" --data "full_url=https://anytown.usa" --data "shor
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
-{"created_at":"2021-06-22T14:48:12Z","full_url":"https://anytown.usa","short_url":"any"}
+{"created_at":"2021-06-22T14:48:12Z","full_url":"https://anytown.usa","short_url":"any","token":"nsdo.sg89sdn.sdfnk2"}
 ```
 
 There are a few restrictions to what `short_url`s are valid. Only alpha numeric and `-`, `_` and `+` characters
 are allowed. Any uppercase letters are converted to lower case. The reason for this, which breaks down to
 security, is outlined in further detail below.
 
+The response includes a token which can be used to expire this short. The token does not expire.
+
 ### Expire URLs
 
-Expiring URLs is done through a DELETE HTTP request to the slug.
+Expiring URLs is done through a DELETE HTTP request to the short url to be deleted. An Authorization header is
+required which includes the bearer token that was given when the short was created. This token will be verified
+and only a matching token will be allowed to remove the requested short ensuring only the creator can expire
+a short.
 
 ```bash
-$ curl -D - -X DELETE --url "/any"
+$ curl -D - -X DELETE --url "/any" --header "Authorization: bearer nsdo.sg89sdn.sdfnk2"
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
@@ -165,3 +170,18 @@ This project is hosted using [GitHub](https://github.com/) at [https://github.co
 ## Future Improvements
 
 To see areas for improvement, [read our documentation](./future_improvements.md).
+
+## Notes
+
+The following are additional design notes.
+
+### User Management
+
+There are currently no restrictions on creating shorts. This means that anyone from the public internet can
+create shorts and remove their own shorts. This is an intentional design choice. DDoS or spamming should be
+handled by the network defense layer (such as [Cloudflare](https://www.cloudflare.com)),
+not this application itself.
+
+The expiration of a short is restricted by a [Json Web Token (jwt)](https://jwt.io/introduction)
+which is provided at creation. This ensures that only the creator has the authority to remove their short.
+The token is signed using HS256, so it cannot be tampered with or faked.

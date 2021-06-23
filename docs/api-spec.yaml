@@ -44,6 +44,32 @@ paths:
       responses:
         200:    
           description: The short URL was successfully created
+          content:
+            application/json:
+              schema:
+                required:
+                - created_at
+                - full_url
+                - short_url
+                - token
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    description: Date in iso8601 format
+                    example: "2021-06-23T13:46:18+00:00"
+                  full_url:
+                    type: string
+                    description: Full url given
+                    example: https://petfinder.com
+                  short_url:
+                    type: string
+                    description: The short url given
+                    example: doggo
+                  token:
+                    type: string
+                    description: A jwt token used for authorizing the removal of this short
+                    example: jwen.dfho.efoisn
         400:
           description: The provided params are not valid
         401:
@@ -75,7 +101,7 @@ paths:
       tags:
         - admin
       summary: Delete a short URL
-      description: Remove a short URL from use
+      description: Remove a short URL from use. Authorization is required from the creation of the token.
       parameters:
         - name: short_url
           in: path
@@ -83,11 +109,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            format: bearer token
+          required: true
+          example: bearer jwen.dfho.efoisn
       responses:
         200:
           description: The short URL was successfully removed
         401:
-          description: The provided authentication is not authorized to remove this short URL
+          description: The provided bearer is not authorized to remove this short URL
         404:
           description: Short URL could not be found
   /health:

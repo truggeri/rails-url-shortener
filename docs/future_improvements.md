@@ -2,19 +2,19 @@
 
 The following are ideas for how the product could be enhanced in the future.
 
-## User Management
+## Additional User Management
 
-There are currently no user restrictions on shorts. This means that any user from the public internet can create
-shorts and remove shorts. This is not sufficient as it allows anyone to remove anyone elses shorts.
-
-One solution would be to "roll our own" user management. This is okay for a small scale project as one can own
-their own code. There are also lots of helper libraries such as Devise.
+If user accounts were desired in the future, one solution would be to "roll our own" user management.
+This is okay for a small scale project as one can own their own code.
+There are also lots of helper libraries such as Devise.
 
 Another option, depending on the business requirements, are to use an external service to manage users. Such
 options include [Auth0](https://auth0.com/) and [Aws Cognito](https://aws.amazon.com/cognito/). These solutions
 are great because they offer features that would be extremely difficult to implement on our own such as
 external identity providers (Google, Facebook, Apple, etc.), multi-factor authentication and security updates.
 Of course, not every organization will be comfortable exporting this functionality to an external partner.
+A working example of such a setup with Auth0 can be seen in
+[this branch](https://github.com/truggeri/rails-url-shortener/tree/auth0-exp).
 
 ## Analytics
 
