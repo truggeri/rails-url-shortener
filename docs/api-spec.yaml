@@ -16,7 +16,7 @@ externalDocs:
 tags:
   - name: use
     description: Using a short URL
-  - name: admin
+  - name: management
     description: Routes for managing URL shorts
   - name: ops
     description: Routes used for the operation of the app
@@ -24,7 +24,7 @@ paths:
   /:
     post:
       tags:
-        - admin
+        - management
       summary: Create a new short URL
       requestBody:
         required: true
@@ -36,11 +36,11 @@ paths:
               type: object
               properties:
                 full_url:
-                  description: The target URL
+                  description: The target URL. Must be between 3 and 500 characters. 
                   example: https://petfinder.com
                   type: string
                 short_url:
-                  description: The desired short URL. Only alpha numeric and - _ + characters allowed. All characters (a-z) are lower cased
+                  description: The desired short URL. Only alpha numeric and - _ + characters allowed. Must be between 3 and 100 characters. All characters (a-z) are lower cased
                   example: doggo
                   type: string
       responses:
@@ -74,6 +74,22 @@ paths:
                     example: jwen.dfho.efoisn
         400:
           description: The provided params are not valid
+          content:
+            application/json:
+              schema:
+                required:
+                - errors
+                - message
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    description: Array of error messages
+                    example: ["Short url only alpha numeric and - _ + allowed"]
+                  message:
+                    type: string
+                    description: Bad request
+                    example: Bad request
         401:
           description: The provided authentication is not authorized to remove this short URL
   /{short_url}:
@@ -101,7 +117,7 @@ paths:
           description: Short URL could not be found
     delete:
       tags:
-        - admin
+        - management
       summary: Delete a short URL
       description: Remove a short URL from use. Authorization is required from the creation of the token.
       parameters:

@@ -24,25 +24,25 @@ describe Short, type: :model do
       context 'when full_url not provided' do
         let(:object) { Short.new(short_url: 'sho') }
 
-        it 'is invalid' do
-          expect(subject).to eq(false)
-        end
+        it { expect(subject).to eq(false) }
       end
 
       context 'when invalid full_url provided' do
         let(:object) { Short.new(full_url: '<something>', short_url: 'sho') }
 
-        it 'is invalid' do
-          expect(subject).to eq(false)
-        end
+        it { expect(subject).to eq(false) }
+      end
+
+      context 'when full_url is too short' do
+        let(:object) { Short.new(full_url: 'so', short_url: 'sho') }
+
+        it { expect(subject).to eq(false) }
       end
 
       context 'when valid full_url provided' do
         let(:object) { Short.new(full_url: 'something', short_url: 'sho') }
 
-        it 'is valid' do
-          expect(subject).to eq(true)
-        end
+        it { expect(subject).to eq(true) }
       end
     end
 
@@ -50,33 +50,37 @@ describe Short, type: :model do
       context 'when short_url not provided' do
         let(:object) { Short.new(full_url: 'something') }
 
-        it 'is valid' do
-          expect(subject).to eq(true)
-        end
+        it { expect(subject).to eq(true) }
       end
 
       context 'when short_url provided' do
         let(:object)    { Short.new(full_url: 'something', short_url: given_url) }
         let(:given_url) { 'new-url' }
 
-        it 'is valid' do
-          expect(subject).to eq(true)
-        end
+        it { expect(subject).to eq(true) }
 
         context 'when short_url has valid characters' do
           let(:given_url) { 'g00d_URL-+' }
 
-          it 'is valid' do
-            expect(subject).to eq(true)
-          end
+          it { expect(subject).to eq(true) }
         end
 
         context 'when short_url has invalid characters' do
           let(:given_url) { 'b@d_Url' }
 
-          it 'is invalid' do
-            expect(subject).to eq(false)
-          end
+          it { expect(subject).to eq(false) }
+        end
+
+        context 'when short_url is too short' do
+          let(:given_url) { 'go' }
+
+          it { expect(subject).to eq(false) }
+        end
+
+        context 'when short_url is a reserved word' do
+          let(:given_url) { Short::RESERVED_SHORTS.sample }
+
+          it { expect(subject).to eq(false) }
         end
 
         context 'when short_url already taken' do
@@ -121,7 +125,7 @@ describe Short, type: :model do
       end
 
       context 'when all random codes are taken (at least ten)' do
-        let(:taken_values) { %w[a b c d e f g h i j k] }
+        let(:taken_values) { %w[azz bzz czz dzz ezz fzz gzz hzz izz jzz kzz] }
 
         before do
           allow(SecureRandom).to receive(:base64).and_return(*taken_values)

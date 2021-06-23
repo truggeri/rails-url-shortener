@@ -21,12 +21,13 @@ class ShortsController < ApplicationController
     @short = Short.create(details)
     return render(json: @short.marshall, status: 200) if @short.valid?
 
-    render_status(400)
+    errs = @short.errors.map(&:full_message)
+    render(json: { message: I18n.t('errors.400'), errors: errs }, status: 400)
   end
 
   def destroy
     status = @short.destroy ? 200 : 400
-    render(json: {}, status: status)
+    render(plain: '', status: status)
   end
 
   private

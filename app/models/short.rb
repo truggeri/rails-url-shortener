@@ -18,15 +18,17 @@ class Short < ApplicationRecord
   CODE_GENERATION_ATTEMPS = 10
   DEFAULT_RANDOM_LENGTH   = 6
   INVALID_FULL_CHARS      = /[<>]+/
+  RESERVED_SHORTS         = %w[admin health status system].freeze
   VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_+]+\z/
 
+  before_save       :generate_uuid
   before_validation :generate_short
-  before_validation :generate_uuid
 
-  validates :full_url,  presence: true,
+  validates :full_url,  presence: true, length: { in: 3..500 },
                         format: { without: INVALID_FULL_CHARS, message: :blocked_chars }
-  validates :short_url, presence: true, uniqueness: true,
-                        format: { with: VALID_SHORT_URL_CHARS, message: :invalid_chars }
+  validates :short_url, presence: true, uniqueness: true, length: { in: 3..100 },
+                        format: { with: VALID_SHORT_URL_CHARS, message: :invalid_characters },
+                        exclusion: { in: RESERVED_SHORTS, message: :reserved }
 
   def marshall
     { created_at: created_at.iso8601, full_url: full_url, short_url: short_url, token: token }

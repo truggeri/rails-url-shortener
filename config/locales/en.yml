@@ -2,8 +2,9 @@ en:
   activerecord:
     errors:
       messages:
-        blocked_chars: "invalid character included"
-        invalid_characters: "only alpha numeric and - _ + allowed"
+        blocked_chars: "contains invalid characters"
+        invalid_characters: "can only contain alpha numeric and - _ + allowed"
+        reserved: "contains a reserved keyword"
   errors:
     400: "Bad request"
     401: "Unauthorized"
