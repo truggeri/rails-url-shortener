@@ -1,0 +1,19 @@
+version: '3.2'
+services:
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=${URL_SHORTENER_DB_DATABASE}
+      - POSTGRES_PASSWORD=${URL_SHORTENER_DB_PASSWORD}
+      - POSTGRES_USER=${URL_SHORTENER_DB_USERNAME}
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
+  web-app:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - 3000:3000

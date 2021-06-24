@@ -32,7 +32,17 @@ This app uses [PostgreSQL 13](https://www.postgresql.org/docs/13/) for it's data
 export DATABASE_URL=postgres://<username>:<password>@<host>:<port>/rails_url_shortener
 ```
 
-This database can be setup in any fashion that you choose. Options include [local install](https://www.postgresql.org/download/), [Docker](https://hub.docker.com/_/postgres?tab=description), or as [a web service](https://www.heroku.com/postgres).
+This database can be setup in any fashion that you choose. Options include [local install](https://www.postgresql.org/download/), [Docker](https://hub.docker.com/_/postgres?tab=description), or as [a web service](https://www.heroku.com/postgres). If you'd like to use Docker, we have a [Docker Compose](https://docs.docker.com/compose/) [file](./docker-compose.yml) to help,
+
+```bash
+cat docker-compose.env
+ export URL_SHORTENER_DB_DATABASE=rails_url_shortener
+ export URL_SHORTENER_DB_PASSWORD=somepassword
+ export URL_SHORTENER_DB_USERNAME=database_user
+ export URL_SHORTENER_DB_URL=postgres://$URL_SHORTENER_DB_USERNAME:$URL_SHORTENER_DB_PASSWORD@localhost:5432/$URL_SHORTENER_DB_DATABASE
+source docker-compose.env
+docker-compose up --detach db
+```
 
 ### Docker
 

@@ -21,3 +21,6 @@
 
 # Coverage output
 coverage/
+
+# Ignore local data
+/data/*
