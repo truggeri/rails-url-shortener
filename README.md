@@ -4,13 +4,14 @@
 ![Coverage Badge](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)
 
 A simple Rails application that is an api based url shortener.
-Try it out at [https://short.truggeri.com/](https://short.truggeri.com/)
+Try it out at [https://short.truggeri.com/](https://short.truggeri.com/) using our [api docs](https://short.truggeri.com/docs) as a guide.
 
 ![RoR Badge](https://img.shields.io/badge/-Ruby_On_Rails-b32424?style=flat&labelColor=cc0000&logo=ruby-on-rails&logoColor=white)
 ![PostgreSQL Badge](https://img.shields.io/badge/-PostgreSQL-426078?style=flat&labelColor=336791&logo=postgresql&logoColor=white)
-[![Heroku Badge](https://img.shields.io/badge/-GitHub-322626?style=flat&labelColor=181717&logo=github&logoColor=white)](https://github.com/truggeri/rails-url-shortener)
+[![Github Badge](https://img.shields.io/badge/-GitHub-322626?style=flat&labelColor=181717&logo=github&logoColor=white)](https://github.com/truggeri/rails-url-shortener)
 [![GitHub Actions Badge](https://img.shields.io/badge/-GitHub_Actions-4b93e6?style=flat&labelColor=2088FF&logo=github-actions&logoColor=white)](https://github.com/truggeri/rails-url-shortener/actions)
 [![OpenAPI Badge](https://img.shields.io/badge/-OpenAPI_Spec-8dd152?style=flat&labelColor=85EA2D&logo=swagger&logoColor=white)](./docs/api-spec.yaml)
+![Heroku Badge](https://img.shields.io/badge/-Heroku-45197f?style=flat&labelColor=430098&logo=heroku&logoColor=white)
 
 ## Requirements and Design
 
