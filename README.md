@@ -3,7 +3,7 @@
 [![Test](https://github.com/truggeri/rails-url-shortener/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/truggeri/rails-url-shortener/actions/workflows/test.yml)
 ![Coverage Badge](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)
 
-A simple Rails application that is an api based url shortener.
+A simple Rails application that implements an api based url shortener.
 Try it out at [https://short.truggeri.com/](https://short.truggeri.com/) using our [api docs](https://short.truggeri.com/docs) as a guide.
 
 ![RoR Badge](https://img.shields.io/badge/-Ruby_On_Rails-b32424?style=flat&labelColor=cc0000&logo=ruby-on-rails&logoColor=white)
@@ -14,7 +14,7 @@ Try it out at [https://short.truggeri.com/](https://short.truggeri.com/) using o
 [![OpenAPI Badge](https://img.shields.io/badge/-OpenAPI_Spec-8dd152?style=flat&labelColor=85EA2D&logo=swagger&logoColor=white)](./docs/api-spec.yaml)
 
 ![Heroku Badge](https://img.shields.io/badge/-Heroku-45197f?style=flat&labelColor=430098&logo=heroku&logoColor=white)
-![Docker Badge](https://img.shields.io/badge/-Docker-4b99d4?style=flat&labelColor=2496ED&logo=docker&logoColor=white)
+[![Docker Badge](https://img.shields.io/badge/-Docker-4b99d4?style=flat&labelColor=2496ED&logo=docker&logoColor=white)](./Dockerfile)
 
 ## Requirements and Design
 
@@ -46,8 +46,8 @@ docker-compose up --detach db
 
 ### Docker
 
-If you'd like to run using Docker, there is a Dockerfile provided.
-To use, build the container first and then run it with your configured database and port.
+If you'd like to run the application using Docker, there is a [Dockerfile](./Dockerfile) provided.
+To use, build the container first and then run it with your configured database and port settings.
 
 ```bash
 docker build -t rails-url-shortener .
@@ -57,4 +57,4 @@ docker run --rm -e DATABASE_URL=$DATABASE_URL -p 3000:3000 rails-url-shortener
 ## Future Improvements
 
 Of course, there's always more to do. [Read our documentation](./docs/future_improvements.md) on
-upcoming areas of improvement.
+ideas for improvements and future work.

@@ -4,7 +4,7 @@ This document outlines the design of this application including decisions that w
 
 ## Requirements
 
-From our original requirements specification,
+From the original requirements specification,
 
 > **Product Requirements**:
 >
@@ -25,15 +25,15 @@ The following section details design decisions based on each product requirement
 
 ### Create Short URLs
 
-Creating short URLs can be done via POST to the root. The only required parameter is `full_url` as empty
-`short_urls` get an auto generated code. Much more detail on this will be detailed later.
+Creating short URLs can be done via a POST to the root url. The only required body parameter is `full_url`. `short_urls` can be provided, but if omitted an auto generated slug is used.
+Much more detail on this process is [detailed below](#custom-slugs).
 
 ```bash
-$ curl -D - -X POST --url "/" --data "full_url=https://anytown.usa"
+$ curl --dump-header - --requestPOST --url "/" --data "full_url=https://anytown.usa"
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
-{"created_at":"2021-06-22T14:46:35Z","full_url":"https://anytown.usa","short_url":"Sa37mxEZilg-"}
+{"created_at":"2021-06-22T14:46:35Z","full_url":"https://anytown.usa","short_url":"Sa37mx"}
 ```
 
 ### Custom Slugs
@@ -41,40 +41,43 @@ Content-Type: application/json; charset=utf-8
 Custom slugs can also be created by providing a `short_url` parameter to the create route.
 
 ```bash
-$ curl -D - -X POST --url "/" --data "full_url=https://anytown.usa" --data "short_url=any"
+$ curl --dump-header - --request POST --url "/" --data "full_url=https://anytown.usa" --data "short_url=any"
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {"created_at":"2021-06-22T14:48:12Z","full_url":"https://anytown.usa","short_url":"any","token":"nsdo.sg89sdn.sdfnk2"}
 ```
 
-There are a few restrictions to what `short_url`s are valid. Only alpha numeric and `-_` characters
-are allowed. Any uppercase letters are converted to lower case. The reason for this, which breaks down to
-security, is outlined in further detail below.
+There are a few restrictions to what `short_url`s are valid.
 
-The response includes a token which can be used to expire this short. The token does not expire.
+* The `short_url` must be between 3 and 100 characters in length.
+* Only alpha numeric and `-_` characters are allowed.
+* Any uppercase letters are converted to lower case. The reason for this, which breaks down to
+security, is outlined in further [detail below](#security).
+
+The response includes a [jwt token](https://en.wikipedia.org/wiki/JSON_Web_Token) which can be
+used to expire this short. This is [detailed below](#user-management).
 
 ### Expire URLs
 
-Expiring URLs is done through a DELETE HTTP request to the short url to be deleted. An Authorization header is
+Expiring URLs is done through a DELETE request to the short url itself An Authorization header is
 required which includes the bearer token that was given when the short was created. This token will be verified
 and only a matching token will be allowed to remove the requested short ensuring only the creator can expire
-a short.
+a short. These tokens never expire.
 
 ```bash
-$ curl -D - -X DELETE --url "/any" --header "Authorization: bearer nsdo.sg89sdn.sdfnk2"
+$ curl --dump-header - --request DELETE --url "/any" --header "Authorization: bearer nsdo.sg89sdn.sdfnk2"
 HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{}
+Content-Type: text/plain; charset=utf-8
 ```
 
 ### Get Redirected
 
-This is the heart of the project. To go from a short url to a full url, simply perform a GET to the short url.
+This is the heart of the project. To go from a short url to a full url,
+simply perform a GET request to the short url.
 
 ```bash
-$ curl -D - -X GET --url "/any"
+$ curl --dump-header - --request GET --url "/any"
 HTTP/1.1 302 Found
 Location: https://anytown.usa
 Content-Type: text/html; charset=utf-8
@@ -82,18 +85,20 @@ Content-Type: text/html; charset=utf-8
 
 There are a few key considerations with this functionality.
 
-1. This action should always be fast.
-2. We should prevent security concerns when possible.
-3. This design should scale reasonably well.
+1. Speed - This action should always be fast.
+2. Security - We should prevent security concerns when possible.
+3. Scale - This design should scale reasonably well.
 
 #### Speed
 
-The first point can be achieved with a few techniques. Translations from short url to full url are done by a SQL
-query that should be covered by an index. This means the `short_url` field needs to be indexed. If we need
+The first point is achieved with a few techniques. Translations from short url to full url are done by a SQL
+query that is covered by an index. This means the
+[`short_url` field is indexed](https://github.com/truggeri/rails-url-shortener/blob/a7454fb2ab59019972cb9c28477bb1ebb2fa7b63/db/migrate/20210622000232_create_shorts.rb#L10).
+If we need
 further optimization, an in-memory cache could be used to enhance speed of "hot" slugs, but for now we will only
 be relying on the PostgreSQL cache. Any non-local cache (memcached, Redis) _might_ be faster, but because they
 are across the network, it is possible that such a solution offers no additional performance while adding a
-decent amount of complexity.
+decent amount of complexity and cost.
 
 #### Security
 
@@ -110,7 +115,9 @@ our computation time, doing the down case on every request, and it would reduce 
 
 Another approach would be to do the lookup by a `short_url` as given, and if it misses in the database, try
 again after down casing. This would work and maintain our full character set, but it would violate our first
-consideration - keep this route fast. In order to maintain speed, we should also avoid running multiple SQL queries to determine the `full_url`. This is done by not allowing users to enter custom slugs with upper case letters so a down case is not necessary as a second query.
+consideration - keep this route fast. In order to maintain speed, we should also avoid running multiple SQL queries to determine the `full_url`. This leads to our final solution which is to
+[down case all custom slugs](https://github.com/truggeri/rails-url-shortener/blob/a7454fb2ab59019972cb9c28477bb1ebb2fa7b63/app/controllers/shorts_controller.rb#L19)
+before saving them to the database.
 
 #### Scale
 
@@ -131,7 +138,7 @@ While the read may be fast, we should also consider the speed of the create. If 
 a code and then check to ensure it's not taken, we will slow down dramatically as the number of shorts grow.
 Said another way, the naive approach to code generation is `O(n)` for `n` existing shorts.
 An ideal solution would be able to generate a random that's in order `O(1)`.
-This is an optimization that is detailed below.
+This is an optimization that is [detailed below](#auto-generated-slugs).
 
 ## Project Design
 
@@ -184,17 +191,19 @@ not this application itself.
 
 The expiration of a short is restricted by a [Json Web Token (jwt)](https://jwt.io/introduction)
 which is provided at creation. This ensures that only the creator has the authority to remove their short.
-The token is signed using HS256, so it cannot be tampered with or faked.
+The token is signed using HS256, so it cannot be tampered with or faked and all the information it contains
+is safe for public viewing so there is no need to encrypt it with
+[Json Web Encryption (jwe)](https://en.wikipedia.org/wiki/JSON_Web_Encryption).
 
 ### Auto Generated Slugs
 
-A late addition was to change the mechanism for generating a slug. The original implementation created a random
-string using Base64. This would work fine when the total space of available slugs is sparse, but as it filled up
-collisions would become far more likely and thus the time to create would rise.
+A [recent change](https://github.com/truggeri/rails-url-shortener/commit/fd2b7d22bd1a9287171194c39d6aab5bdde7eefb)
+was made in the mechanism for generating a slug. The original implementation created a random
+string using Base64. This would work fine when the total space of available slugs is sparse,
+but as the number of available slugs became small, the number of random draws to get a valid slug would increase.
 
-The new mechanism will creating a code in `O(1)` time, even as the available space of slugs decreases. It uses
-a base 64 conversion of the next available id. This creates a code that is likely to be available unless it was
-already taken by a custom slug. The process is also no slower than a random Base64 string generation would be.
-
-To see the change, please see
-[commit fd2b7d2](https://github.com/truggeri/rails-url-shortener/commit/fd2b7d22bd1a9287171194c39d6aab5bdde7eefb).
+The [new mechanism](https://github.com/truggeri/rails-url-shortener/blob/main/app/lib/slug.rb) will create
+a code in `O(1)` time, even as the available space of slugs decreases. It uses
+a base 64 conversion of the next available integer id.
+This creates a code that is likely to be available unless it was already taken by a custom slug.
+The process is also no slower than a random Base64 encoded string generation would be.
