@@ -1,0 +1,152 @@
+openapi: 3.0.3
+info:
+  title: Rails Url Shortener
+  description: A small application for making short urls
+  contact:
+    email: short@truggeri.com
+  license:
+    name: MIT
+    url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
+  version: 0.1.0
+servers:
+- url: https://short.truggeri.com/
+externalDocs:
+  description: See our Github
+  url: https://github.com/truggeri/rails-url-shortener/
+tags:
+  - name: use
+    description: Using a short URL
+  - name: management
+    description: Routes for managing URL shorts
+  - name: ops
+    description: Routes used for the operation of the app
+paths:
+  /:
+    post:
+      tags:
+        - management
+      summary: Create a new short URL
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              required:
+                - full_url
+              type: object
+              properties:
+                full_url:
+                  description: The target URL. Must be between 3 and 500 characters. 
+                  example: https://petfinder.com
+                  type: string
+                short_url:
+                  description: The desired short URL. Only alpha numeric and - _ characters allowed. Must be between 3 and 100 characters. All characters (a-z) are lower cased
+                  example: doggo
+                  type: string
+      responses:
+        200:    
+          description: The short URL was successfully created
+          content:
+            application/json:
+              schema:
+                required:
+                - created_at
+                - full_url
+                - short_url
+                - token
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    description: Date in iso8601 format
+                    example: "2021-06-23T13:46:18+00:00"
+                  full_url:
+                    type: string
+                    description: Full url given
+                    example: https://petfinder.com
+                  short_url:
+                    type: string
+                    description: The short url given
+                    example: doggo
+                  token:
+                    type: string
+                    description: A jwt token used for authorizing the removal of this short
+                    example: jwen.dfho.efoisn
+        400:
+          description: The provided params are not valid
+          content:
+            application/json:
+              schema:
+                required:
+                - errors
+                - message
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    description: Array of error messages
+                    example: ["Short url only alpha numeric and - _ allowed"]
+                  message:
+                    type: string
+                    description: Bad request
+                    example: Bad request
+        401:
+          description: The provided authentication is not authorized to remove this short URL
+  /{short_url}:
+    get:
+      tags:
+      - use
+      summary: Short URL
+      description: A request with a short URL.
+      parameters:
+        - name: short_url
+          in: path
+          description: The short URL code
+          required: true
+          schema:
+            type: string
+      responses:
+        302:
+          description: Redirect to the full URL
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The full URL
+        404:
+          description: Short URL could not be found
+    delete:
+      tags:
+        - management
+      summary: Delete a short URL
+      description: Remove a short URL from use. Authorization is required from the creation of the token.
+      parameters:
+        - name: short_url
+          in: path
+          description: The short URL code
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            format: bearer token
+          required: true
+          example: bearer jwen.dfho.efoisn
+      responses:
+        200:
+          description: The short URL was successfully removed
+        401:
+          description: The provided bearer is not authorized to remove this short URL
+        404:
+          description: Short URL could not be found
+  /health:
+    get:
+      tags:
+      - ops
+      summary: Health check
+      description: Simple route used to ensure the app is alive
+      responses:
+        200:
+          description: Healthy
