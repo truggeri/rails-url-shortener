@@ -1,7 +1,7 @@
 #
 # Authentication
 #   Provides a before_action to authenicate an action with Authorization header and jwt token
-# 
+#
 # ex:
 #   include Authentication
 #   before_action authenticate!
