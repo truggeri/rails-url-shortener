@@ -1,0 +1,13 @@
+.DS_Store
+.git
+.github
+.idea
+coverage
+data
+docs
+log
+node_modules
+spec
+storage
+test
+tmp
