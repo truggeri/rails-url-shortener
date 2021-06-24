@@ -111,8 +111,9 @@ describe Short, type: :model do
       end
 
       context 'when auto generated code is already taken' do
+        let(:slug) { instance_double('slug', generate: 'taken') }
         before do
-          allow(Slug).to receive(:new).and_return('taken').once
+          allow(Slug).to receive(:new).and_return(slug).once
           allow(Slug).to receive(:new).and_call_original
         end
 
@@ -124,10 +125,12 @@ describe Short, type: :model do
       end
 
       context 'when all random codes are taken (at least ten)' do
+        let(:slug)         { instance_double('slug') }
         let(:taken_values) { %w[azz bzz czz dzz ezz fzz gzz hzz izz jzz kzz] }
 
         before do
-          allow(Slug).to receive(:new).and_return(*taken_values)
+          allow(Slug).to receive(:new).and_return(slug)
+          allow(slug).to receive(:generate).and_return(*taken_values)
         end
 
         it 'gives up and can\'t create code' do

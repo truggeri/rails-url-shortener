@@ -12,38 +12,39 @@ class Slug
   DIGIT_MAP = [1, 3, 5, 2, 0, 4].freeze
 
   def initialize(number)
+    raise ArgumentError, 'number must be an integer' unless number.is_a?(Integer)
+    raise ArgumentError, 'number too large'          if number > BASE**CHARACTERS
+    raise ArgumentError, 'number too small'          if number.negative?
+
     @number = number
-    raise ArgumentError, 'number must be a number' unless number.is_a?(Integer)
-    raise ArgumentError, 'number too large'        if number > BASE**CHARACTERS
-    raise ArgumentError, 'number too small'        if number.negative?
   end
 
-  def to_s
-    slug
+  def generate
+    to_slug(convert_base)
   end
 
   private
 
   attr_reader :number
 
-  def slug
-    @slug ||= convert_base(number)
+  def convert_base
+    remaining = number
+    (0..(CHARACTERS - 1)).to_a.reverse.map do |position|
+      value, remaining = digit_value(position, remaining)
+      value
+    end
   end
 
-  def convert_base(number)
-    result    = []
-    remaining = number
-    position  = CHARACTERS - 1
+  def digit_value(digit, full_number)
+    return [full_number, 0] if digit.zero?
 
-    while position.positive?
-      digit_weight = position * BITS_PER_DIGIT
-      digit        = remaining >> digit_weight
-      remaining -= digit << digit_weight
-      position  -= 1
-      result << digit
-    end
-    result << remaining
+    digit_shift = digit * BITS_PER_DIGIT
+    value       = full_number >> digit_shift
+    remaining   = full_number - (value << digit_shift)
+    [value, remaining]
+  end
 
-    DIGIT_MAP.map { |i| CHAR_MAP[result[i]] }.join
+  def to_slug(digits)
+    DIGIT_MAP.map { |digit| CHAR_MAP[digits[digit]] }.join
   end
 end

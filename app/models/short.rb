@@ -55,7 +55,7 @@ class Short < ApplicationRecord
   end
 
   def generate_code(number)
-    Slug.new(number).to_s
+    Slug.new(number).generate
   end
 
   def code_valid?(code)

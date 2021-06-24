@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Slug do
-  subject { Slug.new(number).to_s }
+  subject { Slug.new(number).generate }
 
   context 'when number is nil' do
     let(:number) { nil }
