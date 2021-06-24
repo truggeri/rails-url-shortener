@@ -46,13 +46,13 @@ describe Token do
     context 'when payload is nil' do
       let(:payload) { nil }
 
-      it { expect(subject).to eq(nil) }
+      it { expect { subject }.to raise_error(ArgumentError) }
     end
 
     context 'when payload is a string' do
       let(:payload) { 'a string' }
 
-      it { expect(subject).to eq(nil) }
+      it { expect { subject }.to raise_error(ArgumentError) }
     end
 
     context 'when payload is a hash' do

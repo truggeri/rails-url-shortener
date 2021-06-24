@@ -2,6 +2,8 @@
 # Controller for Short actions including lookup
 #
 class ShortsController < ApplicationController
+  include Authentication
+
   before_action :authenticate!,   only: %i[destroy]
   before_action :load_short,      only: %i[destroy show]
   before_action :authorize!,      only: %i[destroy]
@@ -36,13 +38,13 @@ class ShortsController < ApplicationController
     @short = Short.find_by(short_url: params[:id])
     return nil if @short.present?
 
-    render_status(404)
+    render_error(404)
   end
 
   def validate_params
     return nil if short_params.key?(:full_url)
 
-    render_status(400)
+    render_error(400)
   end
 
   def short_params
@@ -55,6 +57,6 @@ class ShortsController < ApplicationController
 
     return nil if token_for_request && token_times_match
 
-    render_status(401)
+    render_error(401)
   end
 end

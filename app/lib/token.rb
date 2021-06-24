@@ -12,7 +12,7 @@ class Token
   end
 
   def self.encode(contents)
-    return nil unless contents.is_a?(Hash)
+    raise ArgumentError, 'contents must be a hash' unless contents.is_a?(Hash)
 
     JWT.encode(payload(contents), secret, SIGNING_ALG, { typ: 'jwt' })
   end
