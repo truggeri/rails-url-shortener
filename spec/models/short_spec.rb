@@ -3,6 +3,7 @@
 # Table name: shorts
 #
 #  id             :bigint           not null, primary key
+#  cost           :integer          not null
 #  full_url       :string           not null
 #  short_url      :string           not null
 #  user_generated :boolean          default(FALSE), not null
@@ -40,7 +41,7 @@ describe Short, type: :model do
       end
 
       context 'when valid full_url provided' do
-        let(:object) { Short.new(full_url: 'something', short_url: 'sho') }
+        let(:object) { Short.new(full_url: 'something', short_url: 'shor') }
 
         it { expect(subject).to eq(true) }
       end
@@ -69,7 +70,7 @@ describe Short, type: :model do
         end
 
         context 'when short_url is too short' do
-          let(:given_url) { 'go' }
+          let(:given_url) { 'goo' }
 
           it { expect(subject).to eq(false) }
         end
@@ -126,7 +127,7 @@ describe Short, type: :model do
 
       context 'when all random codes are taken (at least ten)' do
         let(:slug)         { instance_double('slug') }
-        let(:taken_values) { %w[azz bzz czz dzz ezz fzz gzz hzz izz jzz kzz] }
+        let(:taken_values) { %w[azza bzza czza dzza ezza fzza gzza hzza izza jzza kzza] }
 
         before do
           allow(Slug).to receive(:new).and_return(slug)
@@ -139,6 +140,39 @@ describe Short, type: :model do
           end
           expect(subject).to       eq(nil)
           expect(object.valid?).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe 'calculate_cost' do
+    subject { object.cost }
+
+    context 'when cost present' do
+      let(:object)     { Short.create(full_url: 'full', cost: given_cost) }
+      let(:given_cost) { rand(1..15) }
+
+      it 'keeps the original' do
+        expect(subject).to eq(given_cost)
+      end
+
+      context 'when cost 0' do
+        let(:given_cost) { 0 }
+
+        it 'is invalid' do
+          expect(object.valid?).to eq(false)
+        end
+      end
+    end
+
+    context 'when cost empty' do
+      let(:object) { Short.create(full_url: 'full', short_url: given_short) }
+
+      { 'goly' => 5, 'oely' => 6, 'gole' => 6, 'b-b_' => 9 }.each do |short, exp_cost|
+        context "when short '#{short}'" do
+          let(:given_short) { short }
+
+          it { expect(subject).to eq(exp_cost) }
         end
       end
     end

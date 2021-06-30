@@ -50,7 +50,7 @@ Content-Type: application/json; charset=utf-8
 
 There are a few restrictions to what `short_url`s are valid.
 
-* The `short_url` must be between 3 and 100 characters in length.
+* The `short_url` must be between 4 and 100 characters in length.
 * Only alpha numeric and `-_` characters are allowed.
 * Any uppercase letters are converted to lower case. The reason for this, which breaks down to
 security, is outlined in further [detail below](#security).

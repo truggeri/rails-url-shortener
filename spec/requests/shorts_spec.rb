@@ -53,7 +53,7 @@ describe 'shorts', type: :request do
     end
 
     context 'when params are full' do
-      let(:params) { { full_url: 'something', short_url: 'SoM' } }
+      let(:params) { { full_url: 'something', short_url: 'SoMe' } }
 
       it 'creates new short' do
         expect { subject }.to change(Short, :count).by(1)
@@ -61,7 +61,7 @@ describe 'shorts', type: :request do
 
         last_short = Short.last
         expect(last_short.full_url).to       eq('something')
-        expect(last_short.short_url).to      eq('som')
+        expect(last_short.short_url).to      eq('some')
         expect(last_short.user_generated).to eq(true)
       end
 
