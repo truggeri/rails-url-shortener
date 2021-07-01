@@ -7,7 +7,7 @@ info:
   license:
     name: MIT
     url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
-  version: 1.0.0
+  version: 1.0.1
 servers:
 - url: https://short.truggeri.com/
 externalDocs:
@@ -50,12 +50,17 @@ paths:
             application/json:
               schema:
                 required:
+                - cost
                 - created_at
                 - full_url
                 - short_url
                 - token
                 type: object
                 properties:
+                  cost:
+                    type: number
+                    description: The cost of the short in USD
+                    example: 9
                   created_at:
                     type: string
                     description: Date in iso8601 format

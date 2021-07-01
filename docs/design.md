@@ -18,6 +18,13 @@ From the original requirements specification,
 > 1. The project should include an automated test suite.
 > 2. The project should include a README file with instructions for running the web service and its tests. You should also use the README to provide context on choices made during development.
 > 3. The project should be packaged as a zip file or submitted via a hosted git platform (Github, Gitlab, etc).
+>
+> **Additional Requirements**:
+>
+> 1. Calculate a cost for each slug, where consonants cost $1, vowels $2 and any repeated character costs $1 extra.
+> a. ex: goly -> $5, oely -> $6, gole -> $6
+> 2. Add a suggestion service that given a valid hostname (characters only) suggests a slug that has minimal cost.
+> a. ex: goldbelly -> gldb ($4), google -> golg ($6), hi -> hihh ($7)
 
 ## Product Design
 
@@ -173,6 +180,31 @@ This project includes a [root README file](../README.md) which references this d
 [![Heroku Badge](https://img.shields.io/badge/-GitHub-322626?style=flat&labelColor=181717&logo=github&logoColor=white)](https://github.com/truggeri/rails-url-shortener)
 
 This project is hosted using [GitHub](https://github.com/) at [https://github.com/truggeri/rails-url-shortener](https://github.com/truggeri/rails-url-shortener).
+
+## Additional Requirements
+
+A later pairing session brought about the following additions.
+
+### Cost Calculation
+
+The cost calculation is done as a [before-validation action on the `Short` model](https://github.com/truggeri/rails-url-shortener/blob/6d94c5c421e59b95427749c15f62b4de91d0f8b8/app/models/short.rb#L34).
+It iterates over each character and tallies a cost per character.
+A slight modification was made to allow for digits and `-_` characters at a cost of $3 each. Reoccurrences are
+handled by a hash for quick access. This cost is then saved to the model to avoid recalculation.
+
+### Suggestion Service
+
+There is a [suggestion service](https://github.com/truggeri/rails-url-shortener/blob/main/app/lib/suggestion.rb)
+that takes in a hostname (such as `google`) and outputs a suggestion at minimal cost.
+This works by breaking the hostname into possible characters (consonants and vowels), then iterating in order of
+
+* Unused consonants ($1 each)
+* Unused vowels ($2 each)
+* Used consonants ($2 each)
+* Used vowels ($3 each)
+
+A random selection is done for each used character to provide unique suggestions. A randomization _could_ be done
+on all characters after the generation too.
 
 ## Future Improvements
 

@@ -41,7 +41,7 @@ class Short < ApplicationRecord
                         exclusion: { in: RESERVED_SHORTS, message: :reserved }
 
   def marshall
-    { created_at: created_at.iso8601, full_url: full_url, short_url: short_url, token: token }
+    { cost: cost, created_at: created_at.iso8601, full_url: full_url, short_url: short_url, token: token }
   end
 
   private

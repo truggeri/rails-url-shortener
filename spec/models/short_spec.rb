@@ -209,7 +209,8 @@ describe Short, type: :model do
       Timecop.freeze(time) do
         allow(Token).to receive(:encode).with({ iat: object.created_at.to_i, uuid: object.uuid })
                                         .and_return('fake-token')
-        expect(subject).to include(created_at: time.iso8601,
+        expect(subject).to include(cost:       7,
+                                   created_at: time.iso8601,
                                    full_url:   'full-full',
                                    short_url:  'shorty',
                                    token:      'fake-token')
