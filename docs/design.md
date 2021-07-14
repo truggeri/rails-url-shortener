@@ -206,6 +206,16 @@ This works by breaking the hostname into possible characters (consonants and vow
 A random selection is done for each used character to provide unique suggestions. A randomization _could_ be done
 on all characters after the generation too.
 
+This service can be used via a POST to the `/suggestion` endpoint.
+
+```bash
+$ curl --dump-header - --request POST --url "/suggestion" --data "full_url=https://anytown.usa"
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"hostname":"anytown","short":"nytw"}
+```
+
 ## Future Improvements
 
 To see areas for improvement, [read our documentation](./future_improvements.md).

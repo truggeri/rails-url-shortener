@@ -7,7 +7,7 @@ info:
   license:
     name: MIT
     url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
-  version: 1.0.1
+  version: 1.1.0
 servers:
 - url: https://short.truggeri.com/
 externalDocs:
@@ -146,6 +146,62 @@ paths:
           description: The provided bearer is not authorized to remove this short URL
         404:
           description: Short URL could not be found
+  /suggestion:
+    post:
+      tags:
+        - management
+      summary: Gives a suggested short_url based on a full_url
+      description: Given a full_url in parameters, we can provide a short_url with minimal cost
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              required:
+                - full_url
+              type: object
+              properties:
+                full_url:
+                  description: The target URL. 
+                  example: https://petfinder.com
+                  type: string
+      responses:
+        200:
+          description: Valid short_url suggestion
+          content:
+            application/json:
+              schema:
+                required:
+                - hostname
+                - short
+                type: object
+                properties:
+                  hostname:
+                    type: string
+                    description: The derived hostname that was used for the suggestion
+                    example: petfinder
+                  short:
+                    type: string
+                    description: The suggested short_url
+                    example: ptfn
+        400:
+          description: Given full_url is invalid and we cannot suggest
+          content:
+            application/json:
+              schema:
+                required:
+                - errors
+                - message
+                type: object
+                properties:
+                  errors:
+                    type: string
+                    description: Description of what's wrong
+                    example: given hostname is invalid
+                  message:
+                    type: string
+                    description: Bad request
+                    example: Bad request
   /health:
     get:
       tags:

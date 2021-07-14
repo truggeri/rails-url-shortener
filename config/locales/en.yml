@@ -2,12 +2,13 @@ en:
   activerecord:
     errors:
       messages:
-        blocked_chars: "contains invalid characters"
-        invalid_characters: "can only contain alpha numeric and - _ allowed"
-        reserved: "contains a reserved keyword"
+        blocked_chars: 'contains invalid characters'
+        invalid_characters: 'can only contain alpha numeric and - _ allowed'
+        reserved: 'contains a reserved keyword'
   errors:
-    400: "Bad request"
-    401: "Unauthorized"
-    403: "Forbidden"
-    404: "Not found"
-    500: "Something went wrong on our end"
+    400: 'Bad request'
+    401: 'Unauthorized'
+    403: 'Forbidden'
+    404: 'Not found'
+    500: 'Something went wrong on our end'
+    bad_host: 'given hostname is invalid'

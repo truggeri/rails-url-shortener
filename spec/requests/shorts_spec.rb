@@ -43,7 +43,7 @@ describe 'shorts', type: :request do
 
       it 'creates new short' do
         expect { subject }.to change(Short, :count).by(1)
-        expect(response).to   have_http_status(:ok)
+        expect(response).to   have_http_status(:created)
 
         last_short = Short.last
         expect(last_short.full_url).to       eq('something')
@@ -57,7 +57,7 @@ describe 'shorts', type: :request do
 
       it 'creates new short' do
         expect { subject }.to change(Short, :count).by(1)
-        expect(response).to   have_http_status(:ok)
+        expect(response).to   have_http_status(:created)
 
         last_short = Short.last
         expect(last_short.full_url).to       eq('something')
@@ -167,6 +167,44 @@ describe 'shorts', type: :request do
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#suggest' do
+    subject { post('/suggestion', params: params) }
+
+    let(:params) { {} }
+
+    context 'when params are empty' do
+      let(:params) { {} }
+
+      it 'gives bad request' do
+        subject
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when given hostname is malformed' do
+      let(:params) { { full_url: 'email@something.com' } }
+
+      it 'gives bad request' do
+        expect(Suggestion).not_to receive(:new)
+        subject
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when params contain full_url' do
+      let(:params)          { { full_url: 'https://www.something.com/foo' } }
+      let(:mock_suggestion) { instance_double(Suggestion) }
+
+      it 'suggests a short' do
+        allow(Suggestion).to      receive(:new).with('something').and_return(mock_suggestion)
+        allow(mock_suggestion).to receive(:slug).and_return('smth')
+        subject
+        expect(response).to      have_http_status(:ok)
+        expect(response.body).to eq({ hostname: 'something', short: 'smth' }.to_json)
       end
     end
   end
