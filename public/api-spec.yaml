@@ -7,7 +7,7 @@ info:
   license:
     name: MIT
     url: https://github.com/truggeri/rails-url-shortener/blob/main/LICENSE
-  version: 1.1.0
+  version: 1.2.0
 servers:
 - url: https://short.truggeri.com/
 externalDocs:
@@ -146,6 +146,26 @@ paths:
           description: The provided bearer is not authorized to remove this short URL
         404:
           description: Short URL could not be found
+  /count:
+    get:
+      tags:
+        - ops
+      summary: Gives a count of the number of shorts in the system
+      description: Gives the total number of shorts in the system
+      responses:
+        200:
+          description: The count of shorts
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                type: object
+                properties:
+                  count:
+                    type: number
+                    description: The number of shorts
+                    example: 5
   /suggestion:
     post:
       tags:

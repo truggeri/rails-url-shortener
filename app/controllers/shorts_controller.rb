@@ -45,6 +45,10 @@ class ShortsController < ApplicationController
     render(json: { hostname: hostname, short: slug }, status: 200)
   end
 
+  def count
+    render(json: { count: Short.count }, status: 200)
+  end
+
   private
 
   def load_short

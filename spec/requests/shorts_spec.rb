@@ -208,4 +208,38 @@ describe 'shorts', type: :request do
       end
     end
   end
+
+  describe '#count' do
+    subject { get('/count') }
+
+    context 'when no shorts' do
+      it do
+        subject
+        expect(response).to      have_http_status(:ok)
+        expect(response.body).to eq({ count: 0 }.to_json)
+      end
+    end
+
+    context 'when one short' do
+      it do
+        Short.create(full_url: 'something1')
+        subject
+        expect(response).to      have_http_status(:ok)
+        expect(response.body).to eq({ count: 1 }.to_json)
+      end
+    end
+
+    context 'when multipe shorts' do
+      let(:count) { Random.rand(2..5) }
+
+      it do
+        (1..count).each do |i|
+          Short.create(full_url: "something#{i}")
+        end
+        subject
+        expect(response).to      have_http_status(:ok)
+        expect(response.body).to eq({ count: count }.to_json)
+      end
+    end
+  end
 end
