@@ -19,7 +19,7 @@ class Short < ApplicationRecord
   CODE_GENERATION_ATTEMPS = 10
   DEFAULT_RANDOM_LENGTH   = 6
   INVALID_FULL_CHARS      = /[<>]+/
-  RESERVED_SHORTS         = %w[admin health status system].freeze
+  RESERVED_SHORTS         = %w[admin count health status system].freeze
   VALID_SHORT_URL_CHARS   = /\A[a-zA-Z0-9\-_]+\z/
 
   COST_PER_CONSONANT = 1
