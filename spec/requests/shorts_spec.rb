@@ -212,33 +212,41 @@ describe 'shorts', type: :request do
   describe '#count' do
     subject { get('/count') }
 
-    context 'when no shorts' do
+    before { Short.all.each(&:destroy) }
+
+    shared_examples_for 'a successful count request' do
       it do
         subject
         expect(response).to      have_http_status(:ok)
-        expect(response.body).to eq({ count: 0 }.to_json)
+        expect(response.body).to eq({ count: expected_count }.to_json)
+      end
+    end
+
+    context 'when no shorts' do
+      it_behaves_like 'a successful count request' do
+        let(:expected_count) { 0 }
       end
     end
 
     context 'when one short' do
-      it do
-        Short.create(full_url: 'something1')
-        subject
-        expect(response).to      have_http_status(:ok)
-        expect(response.body).to eq({ count: 1 }.to_json)
+      before { Short.create(full_url: 'something1') }
+
+      it_behaves_like 'a successful count request' do
+        let(:expected_count) { 1 }
       end
     end
 
     context 'when multipe shorts' do
       let(:count) { Random.rand(2..5) }
 
-      it do
+      before do
         (1..count).each do |i|
           Short.create(full_url: "something#{i}")
         end
-        subject
-        expect(response).to      have_http_status(:ok)
-        expect(response.body).to eq({ count: count }.to_json)
+      end
+
+      it_behaves_like 'a successful count request' do
+        let(:expected_count) { count }
       end
     end
   end
